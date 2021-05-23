@@ -2,7 +2,7 @@
 using UnityEditor;
 using uTinyRipper;
 
-namespace PassivePicasso.RoR2Importer
+namespace PassivePicasso.GameImporter
 {
     public class ProgressBarLogger : ILogger, IDisposable
     {
