@@ -157,7 +157,7 @@ namespace PassivePicasso.GameImporter
             GetOrCreateSettings<GameImportUtility>();
         }
 
-        [MenuItem("Tools/RoR2 Asset Importer")]
+        [MenuItem("Tools/Game Asset Importer")]
         static void Import()
         {
             var ripper = CreateInstance<SimpleRipperInterface>();
