@@ -1,0 +1,18 @@
+{
+    "name": "RoR2Importer",
+    "references": [
+        "uTinyRipperCore",
+        "uTinyThunderRipper",
+        "ThunderKit.Core"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
