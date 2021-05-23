@@ -1,13 +1,13 @@
 {
-  "name": "com.passivepicasso.ror2import",
+  "name": "com.passivepicasso.unitygameimporter",
   "version": "0.1.0",
-  "displayName": "RoR2 Importer",
-  "description": "Tool to import RoR2 assets into a ThunderKit configured project for learning endeavors",
+  "displayName": "Unity Game Importer",
+  "description": "Tool to import unity game assets into a ThunderKit configured project for learning purposes",
   "unity": "2018.4",
   "release": "16f1",
   "author": {
     "name": "PassivePicasso",
-    "url": "https://github.com/PassivePicasso/uTinyRipper"
+    "url": "https://github.com/PassivePicasso/GameImporter"
   },
   "dependencies": {}
 }
