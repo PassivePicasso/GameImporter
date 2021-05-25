@@ -13,47 +13,7 @@ namespace PassivePicasso.GameImporter
     {
 
         private ClassIDType[] AllClassIDTypes = (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
-        public ClassIDType[] ClassIDTypes = {
-            ClassIDType.Prefab,
-            ClassIDType.PrefabInstance,
-            ClassIDType.TextAsset,
-            ClassIDType.TextMesh,
-            ClassIDType.Texture,
-            ClassIDType.Texture2D,
-            ClassIDType.Material,
-            ClassIDType.ProceduralMaterial,
-            ClassIDType.Scene,
-            ClassIDType.SceneAsset,
-            ClassIDType.SceneSettings,
-            ClassIDType.Animation,
-            ClassIDType.AnimationClip,
-            ClassIDType.AnimationManager,
-            ClassIDType.Animator,
-            ClassIDType.AnimatorController,
-            ClassIDType.Avatar,
-            ClassIDType.ComputeShader,
-            ClassIDType.Shader,
-            ClassIDType.ShaderVariantCollection,
-            ClassIDType.Preset,
-            ClassIDType.PresetManager,
-            ClassIDType.Terrain,
-            ClassIDType.TerrainData,
-            ClassIDType.TerrainLayer,
-            ClassIDType.Tree,
-            ClassIDType.TagManager,
-            ClassIDType.PhysicsManager,
-            ClassIDType.GraphicsSettings,
-            ClassIDType.NavMeshSettings,
-            ClassIDType.PlayerSettings,
-            ClassIDType.QualitySettings,
-            ClassIDType.RenderSettings,
-            ClassIDType.SceneSettings,
-            ClassIDType.EditorSettings,
-            ClassIDType.EditorBuildSettings,
-            ClassIDType.EditorUserBuildSettings,
-            ClassIDType.LightmapSettings,
-            ClassIDType.Physics2DSettings,
-        };
+        public ClassIDType[] ClassIDTypes = (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
 
         private ListView typeList;
         private ListView addTypeList;
@@ -118,12 +78,15 @@ namespace PassivePicasso.GameImporter
 
         private void UpdateAllClassIDTypes()
         {
-            AllClassIDTypes = Enum.GetValues(typeof(ClassIDType))
+            var acidt = Enum.GetValues(typeof(ClassIDType))
                                       .OfType<ClassIDType>()
-                                      .Where(cid => !ClassIDTypes.Contains(cid))
-                                      .Where(c => $"{c}".IndexOf(searchValue, StringComparison.OrdinalIgnoreCase) > -1)
-                                      .OrderBy(c => $"{c}")
-                                      .ToArray();
+                                      .Where(cid => !ClassIDTypes.Contains(cid));
+            
+            if (!string.IsNullOrWhiteSpace(searchValue))
+                acidt = acidt.Where(c => $"{c}".IndexOf(searchValue, StringComparison.OrdinalIgnoreCase) > -1);
+
+            AllClassIDTypes = acidt.OrderBy(c => $"{c}").ToArray();
+
             addTypeList.itemsSource = AllClassIDTypes;
         }
 
