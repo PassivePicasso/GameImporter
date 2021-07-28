@@ -3,9 +3,14 @@ using System.Linq;
 using ThunderKit.Core.Data;
 using ThunderKit.uTinyRipper;
 using UnityEditor;
+using uTinyRipper;
+#if UNITY_2019_1_OR_NEWER
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
+#else
 using UnityEditor.Experimental.UIElements;
 using UnityEngine.Experimental.UIElements;
-using uTinyRipper;
+#endif
 
 namespace PassivePicasso.GameImporter
 {
@@ -23,8 +28,12 @@ namespace PassivePicasso.GameImporter
             var importUtilitySo = new SerializedObject(GetOrCreateSettings<GameImportUtility>());
 
             var importerRoot = new VisualElement();
+#if UNITY_2018
             importerRoot.AddStyleSheetPath("Packages/com.passivepicasso.unitygameimporter/Editor/UIToolkit/UnityGameImporter.uss");
-            importerRoot.AddToClassList("importer-root");
+#else
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.passivepicasso.unitygameimporter/Editor/UIToolkit/UnityGameImporter.uss");
+            importerRoot.styleSheets.Add(styleSheet);
+#endif
 
             var typesField = new VisualElement();
             typeList = new ListView(ClassIDTypes, (int)EditorGUIUtility.singleLineHeight, MakeTypesItem, BindTypesItem);
@@ -46,7 +55,11 @@ namespace PassivePicasso.GameImporter
             var searchLabel = new Label("Search");
             var searchField = new TextField();
             searchField.AddToClassList("grow");
+#if UNITY_2018
             searchField.OnValueChanged(OnSearchChanged);
+#else 
+            searchField.RegisterValueChangedCallback(OnSearchChanged);
+#endif
             searchElement.Add(searchLabel);
             searchElement.Add(searchField);
 

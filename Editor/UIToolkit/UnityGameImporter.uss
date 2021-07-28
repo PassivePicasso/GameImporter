@@ -1,6 +1,7 @@
 .importer-root{
     flex-direction: row;
     flex-basis: 200px;
+    min-height: 200px;
 }
 
 .types-field {
