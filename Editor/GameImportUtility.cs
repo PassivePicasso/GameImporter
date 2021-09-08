@@ -4,6 +4,7 @@ using ThunderKit.Core.Data;
 using ThunderKit.uTinyRipper;
 using UnityEditor;
 using uTinyRipper;
+using ThunderKit.Core.UIElements;
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -16,68 +17,63 @@ namespace PassivePicasso.GameImporter
 {
     public class GameImportUtility : ThunderKitSetting
     {
+        const string TemplatePath = "Packages/thunderkit-unitygameimporter/Editor/UIToolkit/UnityGameImporterSettings.uxml";
 
-        private ClassIDType[] AllClassIDTypes = (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
+        private ClassIDType[] AllClassIDTypes = GetAllClassIDTypes();
+
+        private static ClassIDType[] GetAllClassIDTypes()
+        {
+            return (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
+        }
+
         public ClassIDType[] ClassIDTypes = (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
 
         private ListView typeList;
         private ListView addTypeList;
+        private Button addAllTypes, removeAllTypes;
         private string searchValue;
         public override void CreateSettingsUI(VisualElement rootElement)
         {
             var importUtilitySo = new SerializedObject(GetOrCreateSettings<GameImportUtility>());
+            var template = TemplateHelpers.LoadTemplateInstance(TemplatePath);
 
-            var importerRoot = new VisualElement();
-#if UNITY_2018
-            importerRoot.AddStyleSheetPath("Packages/com.passivepicasso.unitygameimporter/Editor/UIToolkit/UnityGameImporter.uss");
-#else
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.passivepicasso.unitygameimporter/Editor/UIToolkit/UnityGameImporter.uss");
-            importerRoot.styleSheets.Add(styleSheet);
-#endif
+            addAllTypes = template.Q<Button>("add-all-types");
+            addAllTypes.clickable.clicked += OnAddAllClicked;
 
-            var typesField = new VisualElement();
-            typeList = new ListView(ClassIDTypes, (int)EditorGUIUtility.singleLineHeight, MakeTypesItem, BindTypesItem);
-            var typesLabel = new Label($"Exported {ObjectNames.NicifyVariableName(nameof(ClassIDTypes))}");
+            removeAllTypes = template.Q<Button>("remove-all-types");
+            removeAllTypes.clickable.clicked += OnRemoveAllClicked;
 
-            typesField.Add(typesLabel);
-            typesField.Add(typeList);
-            typesField.AddToClassList("grow");
-            typesField.AddToClassList("types-field");
-            typeList.AddToClassList("types-field-list");
-            typeList.AddToClassList("grow");
+            typeList = template.Q<ListView>("type-list");
             typeList.onItemChosen += OnRemoveItem;
+            typeList.bindItem = BindTypesItem;
+            typeList.makeItem = MakeTypesItem;
+            typeList.itemsSource = ClassIDTypes;
 
-            var addTypesField = new VisualElement();
-            addTypeList = new ListView(AllClassIDTypes, (int)EditorGUIUtility.singleLineHeight, MakeTypesItem, BindAllTypesItem);
-            var addTypesLabel = new Label($"{ObjectNames.NicifyVariableName(nameof(AllClassIDTypes))}");
-            var searchElement = new VisualElement();
-            searchElement.AddToClassList("searchfield");
-            var searchLabel = new Label("Search");
-            var searchField = new TextField();
-            searchField.AddToClassList("grow");
-#if UNITY_2018
-            searchField.OnValueChanged(OnSearchChanged);
-#else 
-            searchField.RegisterValueChangedCallback(OnSearchChanged);
-#endif
-            searchElement.Add(searchLabel);
-            searchElement.Add(searchField);
-
-            addTypesField.Add(addTypesLabel);
-            addTypesField.Add(searchElement);
-            addTypesField.Add(addTypeList);
-            addTypesField.AddToClassList("grow");
-            addTypesField.AddToClassList("alltypes-field");
-            addTypeList.AddToClassList("alltypes-field-list");
-            addTypeList.AddToClassList("grow");
+            addTypeList = template.Q<ListView>("add-type-list");
             addTypeList.onItemChosen += OnAddItem;
-
-            importerRoot.Add(typesField);
-            importerRoot.Add(addTypesField);
-            rootElement.Add(importerRoot);
+            addTypeList.bindItem = BindAllTypesItem;
+            addTypeList.makeItem = MakeTypesItem;
+            addTypeList.selectionType = SelectionType.Multiple;
 
             UpdateAllClassIDTypes();
+
+            rootElement.Add(template);
             rootElement.Bind(importUtilitySo);
+        }
+
+        private void OnRemoveAllClicked()
+        {
+            ClassIDTypes = Array.Empty<ClassIDType>();
+            AllClassIDTypes = GetAllClassIDTypes();
+            typeList.itemsSource = ClassIDTypes;
+            addTypeList.itemsSource = AllClassIDTypes;
+        }
+
+        private void OnAddAllClicked()
+        {
+            ClassIDTypes = GetAllClassIDTypes();
+            typeList.itemsSource = ClassIDTypes;
+            UpdateAllClassIDTypes();
         }
 
         private void UpdateClassIDTypes(object obj, bool remove)
@@ -94,19 +90,13 @@ namespace PassivePicasso.GameImporter
             var acidt = Enum.GetValues(typeof(ClassIDType))
                                       .OfType<ClassIDType>()
                                       .Where(cid => !ClassIDTypes.Contains(cid));
-            
+
             if (!string.IsNullOrWhiteSpace(searchValue))
                 acidt = acidt.Where(c => $"{c}".IndexOf(searchValue, StringComparison.OrdinalIgnoreCase) > -1);
 
             AllClassIDTypes = acidt.OrderBy(c => $"{c}").ToArray();
 
             addTypeList.itemsSource = AllClassIDTypes;
-        }
-
-        private void OnSearchChanged(ChangeEvent<string> evt)
-        {
-            searchValue = evt.newValue;
-            UpdateAllClassIDTypes();
         }
 
         private void OnRemoveItem(object obj) => UpdateClassIDTypes(obj, true);
@@ -140,7 +130,7 @@ namespace PassivePicasso.GameImporter
             var tkSettings = GetOrCreateSettings<ThunderKitSettings>();
             var importUtility = GetOrCreateSettings<GameImportUtility>();
             using (var progressBarLogger = new ProgressBarLogger())
-                ripper.Load(tkSettings.GamePath, importUtility.ClassIDTypes, Platform.StandaloneWin64Player, TransferInstructionFlags.AllowTextSerialization, progressBarLogger);
+                ripper.Load(System.IO.Path.Combine(tkSettings.GamePath, tkSettings.GameExecutable), importUtility.ClassIDTypes, Platform.StandaloneWin64Player, TransferInstructionFlags.AllowTextSerialization, progressBarLogger);
 
             AssetDatabase.Refresh();
         }

@@ -98,12 +98,12 @@ namespace ThunderKit.uTinyRipper
 
                 var gameStructure = GameStructure.Load(new[] { gameDir });
                 var fileCollection = gameStructure.FileCollection;
-                ShutItAllDown(fileCollection.Exporter);
+                //ShutItAllDown(fileCollection.Exporter);
                 fileCollection.Exporter.OverrideExporter(ClassIDType.MonoScript, new NoScriptExporter());
 
                 Logger.Log(LogType.Info, LogCategory.General, "Loading Class Types export configuration");
-                foreach (var cls in classes)
-                    EnableExport(cls, fileCollection.Exporter);
+                //foreach (var cls in classes)
+                //    EnableExport(cls, fileCollection.Exporter);
 
                 Dictionary<string, Guid> AssemblyHash = new Dictionary<string, Guid>();
                 Dictionary<string, long> ScriptId = new Dictionary<string, long>();

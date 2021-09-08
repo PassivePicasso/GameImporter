@@ -3,7 +3,8 @@
     "references": [
         "uTinyRipperCore",
         "uTinyThunderRipper",
-        "ThunderKit.Core"
+        "ThunderKit.Core",
+        "ThunderKit.Thunderstore"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

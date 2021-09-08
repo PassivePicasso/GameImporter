@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="/Packages/thunderkit-unitygameimporter/Editor/UIToolkit/UnityGameImporter.uss" />
+    <ui:VisualElement name="ugi_root" class="importer-root">
+
+        <ui:VisualElement class="grow types-field">
+            <ui:Label text="Targetted Types" />
+            <ui:ListView name="type-list" class="grow types-field-list"/>
+            <ui:Button name="remove-all-types" text="Remove All"/>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="add-types-field alltypes-field grow" >
+            <ui:Label text="Untargetted Types" />
+
+            <ui:ListView name="add-type-list" class="alltypes-field-list grow"/>
+            <ui:Button name="add-all-types" text="Add All" />
+        </ui:VisualElement>
+
+
+    </ui:VisualElement>
+</ui:UXML>

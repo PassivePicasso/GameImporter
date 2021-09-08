@@ -1,6 +1,6 @@
 {
-  "name": "com.passivepicasso.unitygameimporter",
-  "version": "0.1.0",
+  "name": "thunderkit-unitygameimporter",
+  "version": "1.0.2",
   "displayName": "Unity Game Importer",
   "description": "Tool to import unity game assets into a ThunderKit configured project for learning purposes",
   "unity": "2018.4",

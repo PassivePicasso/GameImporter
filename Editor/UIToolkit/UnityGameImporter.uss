@@ -35,7 +35,6 @@
     border-bottom: 1px;
     background-color: #ccc;
 }
-
 .searchfield {
     flex-direction: row;
 }

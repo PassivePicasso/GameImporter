@@ -1,0 +1,7 @@
+{
+  "name": "UnityGameImporter",
+  "version_number": "1.0.2",
+  "website_url": "https://github.com/PassivePicasso/GameImporter",
+  "description": "Tool to import unity game assets into a ThunderKit configured project for learning purposes",
+  "dependencies": []
+}
