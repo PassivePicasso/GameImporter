@@ -95,7 +95,7 @@ namespace ThunderKit.uTinyRipper
                 var unityVersion = playerInfo.ProductVersion;
                 unityVersion = unityVersion.Substring(0, unityVersion.LastIndexOf('.'));
 
-                var gameStructure = GameStructure.Load(new[] { gameDir });
+                var gameStructure = GameStructure.Load(new[] { Path.GetDirectoryName(gameDir) });
                 var fileCollection = gameStructure.FileCollection;
                 //ShutItAllDown(fileCollection.Exporter);
                 fileCollection.Exporter.OverrideExporter(ClassIDType.MonoScript, new NoScriptExporter());

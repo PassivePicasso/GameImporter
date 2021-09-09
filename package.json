@@ -1,6 +1,6 @@
 {
   "name": "thunderkit-unitygameimporter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "displayName": "Unity Game Importer",
   "description": "Tool to import unity game assets into a ThunderKit configured project for learning purposes",
   "unity": "2018.4",
