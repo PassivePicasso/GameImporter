@@ -91,8 +91,7 @@ namespace ThunderKit.uTinyRipper
             {
                 Logger.Instance = logger;
                 var filename = Path.GetFileName(gameDir);
-                var player = Path.Combine(gameDir, $"{filename}.exe");
-                var playerInfo = FileVersionInfo.GetVersionInfo(player);
+                var playerInfo = FileVersionInfo.GetVersionInfo(gameDir);
                 var unityVersion = playerInfo.ProductVersion;
                 unityVersion = unityVersion.Substring(0, unityVersion.LastIndexOf('.'));
 
