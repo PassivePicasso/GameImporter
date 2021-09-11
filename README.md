@@ -5,7 +5,7 @@ This tool utilizes a modified version of [uTinyRipper](https://github.com/mafaca
 This allows you to easily setup a project for learning about the tools you're working with when making mods for games with modding support.
 
 to install this package add the following to your ProjectRoot/Packages/manifest.json
-``` "com.passivepicasso.unitygameimporter":"https://github.com/PassivePicasso/GameImporter.git", ```
+``` "thunderkit-unitygameimporter":"https://github.com/PassivePicasso/GameImporter.git", ```
 
 you will see a large number of warnings when installing this project, I'll likely be simply removing most of the TODO items for the purposes of this project.
 
