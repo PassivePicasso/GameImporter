@@ -1,6 +1,9 @@
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedSubProgram : IAssetReadable
+	public struct SerializedSubProgram : IAssetReadable, IYAMLExportable
 	{
 		public static int ToSerializedVersion(Version version)
 		{
@@ -70,7 +73,7 @@ namespace uTinyRipper.Classes.Shaders
 			}
 		}
 
-		public void Export(ShaderWriter writer, ShaderType type, bool isTier)
+		/*public void Export(ShaderWriter writer, ShaderType type, bool isTier)
 		{
 			writer.WriteIndent(4);
 #warning TODO: convertion (DX to HLSL)
@@ -102,9 +105,37 @@ namespace uTinyRipper.Classes.Shaders
 			{
 				return ((ShaderGpuProgramType53)GpuProgramType).ToGpuProgramType();
 			}
-		}
+		}*/
 
-		public uint BlobIndex { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.AddSerializedVersion(ToSerializedVersion(container.Version));
+			node.Add("m_BlobIndex", BlobIndex);
+			node.Add("m_Channels", Channels.ExportYAML(container));
+			if (HasLocalKeywordIndices(container.Version))
+            {
+				node.Add("m_GlobalKeywordIndices", GlobalKeywordIndices.ExportYAML(true));
+				node.Add("m_LocalKeywordIndices", LocalKeywordIndices.ExportYAML(true));
+			}
+			else
+            {
+				node.Add("m_KeywordIndices", GlobalKeywordIndices.ExportYAML(true));
+			}
+			node.Add("m_ShaderHardwareTier", ShaderHardwareTier);
+			node.Add("m_GpuProgramType", GpuProgramType);
+			node.Add("m_VectorParams", VectorParams.ExportYAML(container));
+			node.Add("m_MatrixParams", MatrixParams.ExportYAML(container));
+			node.Add("m_TextureParams", TextureParams.ExportYAML(container));
+			node.Add("m_BufferParams", BufferParams.ExportYAML(container));
+			node.Add("m_ConstantBuffers", ConstantBuffers.ExportYAML(container));
+			node.Add("m_ConstantBufferBindings", ConstantBufferBindings.ExportYAML(container));
+			node.Add("m_UAVParams", UAVParams.ExportYAML(container));
+			node.Add("m_Samplers", Samplers.ExportYAML(container));
+			return node;
+        }
+
+        public uint BlobIndex { get; set; }
 		/// <summary>
 		/// KeywordIndices previously
 		/// </summary>

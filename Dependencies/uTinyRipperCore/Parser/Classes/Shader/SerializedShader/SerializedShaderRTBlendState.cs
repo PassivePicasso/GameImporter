@@ -1,8 +1,10 @@
 using System.IO;
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
 
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedShaderRTBlendState : IAssetReadable
+	public struct SerializedShaderRTBlendState : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -15,7 +17,20 @@ namespace uTinyRipper.Classes.Shaders
 			ColMask.Read(reader);
 		}
 
-		public void Export(TextWriter writer, int index)
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+            var node = new YAMLMappingNode();
+			node.Add("srcBlend", SrcBlend.ExportYAML(container));
+			node.Add("destBlend", DestBlend.ExportYAML(container));
+			node.Add("srcBlendAlpha", SrcBlendAlpha.ExportYAML(container));
+			node.Add("destBlendAlpha", DestBlendAlpha.ExportYAML(container));
+			node.Add("blendOp", BlendOp.ExportYAML(container));
+			node.Add("blendOpAlpha", BlendOpAlpha.ExportYAML(container));
+			node.Add("colMask", ColMask.ExportYAML(container));
+			return node;
+        }
+
+        /*public void Export(TextWriter writer, int index)
 		{
 			if (!SrcBlendValue.IsOne() || !DestBlendValue.IsZero() || !SrcBlendAlphaValue.IsOne() || !DestBlendAlphaValue.IsZero())
 			{
@@ -78,9 +93,9 @@ namespace uTinyRipper.Classes.Shaders
 				}
 				writer.Write(" {0}\n", index);
 			}
-		}
+		}*/
 
-		public SerializedShaderFloatValue SrcBlend;
+        public SerializedShaderFloatValue SrcBlend;
 		public SerializedShaderFloatValue DestBlend;
 		public SerializedShaderFloatValue SrcBlendAlpha;
 		public SerializedShaderFloatValue DestBlendAlpha;

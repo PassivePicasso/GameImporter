@@ -1,6 +1,9 @@
-﻿namespace uTinyRipper.Classes.Shaders
+﻿using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
+namespace uTinyRipper.Classes.Shaders
 {
-	public struct ShaderBindChannel : IAssetReadable
+	public struct ShaderBindChannel : IAssetReadable, IYAMLExportable
 	{
 		public ShaderBindChannel(uint source, VertexComponent target)
 		{
@@ -14,10 +17,18 @@
 			Target = (VertexComponent)reader.ReadByte();
 		}
 
-		/// <summary>
-		/// ShaderChannel enum
-		/// </summary>
-		public byte Source { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("source", Source);
+			node.Add("target", (byte)Target);
+			return node;
+        }
+
+        /// <summary>
+        /// ShaderChannel enum
+        /// </summary>
+        public byte Source { get; set; }
 		public VertexComponent Target { get; set; }
 	}
 }

@@ -1,6 +1,9 @@
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedShader : IAssetReadable
+	public struct SerializedShader : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -14,7 +17,7 @@ namespace uTinyRipper.Classes.Shaders
 			reader.AlignStream();
 		}
 
-		public void Export(ShaderWriter writer)
+		/*public void Export(ShaderWriter writer)
 		{
 			writer.Write("Shader \"{0}\" {{\n", Name);
 
@@ -38,9 +41,23 @@ namespace uTinyRipper.Classes.Shaders
 			}
 
 			writer.Write('}');
-		}
+		}*/
 
-		public SerializedSubShader[] SubShaders { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_PropInfo", PropInfo.ExportYAML(container));
+			node.Add("m_SubShaders", SubShaders.ExportYAML(container));
+			node.Add("m_Name", Name);
+			node.Add("m_CustomEditorName", CustomEditorName);
+			node.Add("m_FallbackName", FallbackName);
+			node.Add("m_Dependencies", Dependencies.ExportYAML(container));
+			node.Add("m_DisableNoSubshadersMessage", DisableNoSubshadersMessage);
+
+			return node;
+        }
+
+        public SerializedSubShader[] SubShaders { get; set; }
 		public string Name { get; set; }
 		public string CustomEditorName { get; set; }
 		public string FallbackName { get; set; }

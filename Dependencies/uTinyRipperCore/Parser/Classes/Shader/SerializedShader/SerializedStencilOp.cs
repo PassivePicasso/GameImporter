@@ -1,8 +1,10 @@
 using System.IO;
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
 
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedStencilOp : IAssetReadable
+	public struct SerializedStencilOp : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -24,7 +26,17 @@ namespace uTinyRipper.Classes.Shaders
 			writer.Write("ZFail{0} {1}\n", type.ToSuffixString(), ZFailValue);
 		}
 
-		public bool IsDefault => PassValue.IsKeep() && FailValue.IsKeep() && ZFailValue.IsKeep() && CompValue.IsAlways();
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("pass", Pass.ExportYAML(container));
+			node.Add("fail", Fail.ExportYAML(container));
+			node.Add("zFail", ZFail.ExportYAML(container));
+			node.Add("comp", Comp.ExportYAML(container));
+			return node;
+        }
+
+        public bool IsDefault => PassValue.IsKeep() && FailValue.IsKeep() && ZFailValue.IsKeep() && CompValue.IsAlways();
 
 		public SerializedShaderFloatValue Pass;
 		public SerializedShaderFloatValue Fail;

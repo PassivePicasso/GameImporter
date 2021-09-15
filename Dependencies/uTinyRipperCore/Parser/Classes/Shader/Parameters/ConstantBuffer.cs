@@ -1,6 +1,9 @@
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct ConstantBuffer : IAssetReadable
+	public struct ConstantBuffer : IAssetReadable, IYAMLExportable
 	{
 		/// <summary>
 		/// 2017.3 and greater
@@ -29,7 +32,21 @@ namespace uTinyRipper.Classes.Shaders
 			Size = reader.ReadInt32();
 		}
 
-		public string Name { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_NameIndex", NameIndex);
+			node.Add("m_MatrixParams", MatrixParams.ExportYAML(container));
+			node.Add("m_VectorParams", VectorParams.ExportYAML(container));
+			if (HasStructParams(container.Version))
+            {
+				node.Add("m_StructParams", StructParams.ExportYAML(container));
+            }
+			node.Add("m_Size", Size);
+			return node;
+        }
+
+        public string Name { get; set; }
 		public int NameIndex { get; set; }
 		public MatrixParameter[] MatrixParams { get; set; }
 		public VectorParameter[] VectorParams { get; set; }

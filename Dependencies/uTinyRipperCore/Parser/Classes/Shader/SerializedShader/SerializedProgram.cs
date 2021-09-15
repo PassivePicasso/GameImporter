@@ -1,13 +1,23 @@
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedProgram : IAssetReadable
+	public struct SerializedProgram : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
 			SubPrograms = reader.ReadAssetArray<SerializedSubProgram>();
 		}
 
-		public void Export(ShaderWriter writer, ShaderType type)
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_SubPrograms", SubPrograms.ExportYAML(container));
+			return node;
+        }
+
+        /*public void Export(ShaderWriter writer, ShaderType type)
 		{
 			if (SubPrograms.Length == 0)
 			{
@@ -39,8 +49,8 @@ namespace uTinyRipper.Classes.Shaders
 				tierCount++;
 			}
 			return tierCount;
-		}
+		}*/
 
-		public SerializedSubProgram[] SubPrograms { get; set; }
+        public SerializedSubProgram[] SubPrograms { get; set; }
 	}
 }

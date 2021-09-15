@@ -1,6 +1,9 @@
-﻿namespace uTinyRipper.Classes.Shaders
+﻿using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
+namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedShaderVectorValue : IAssetReadable
+	public struct SerializedShaderVectorValue : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -11,7 +14,18 @@
 			Name = reader.ReadString();
 		}
 
-		public bool IsZero => X.IsZero && Y.IsZero && Z.IsZero && W.IsZero;
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("x", X.ExportYAML(container));
+			node.Add("y", Y.ExportYAML(container));
+			node.Add("z", Z.ExportYAML(container));
+			node.Add("w", W.ExportYAML(container));
+			node.Add("name", Name);
+			return node;
+        }
+
+        public bool IsZero => X.IsZero && Y.IsZero && Z.IsZero && W.IsZero;
 
 		public string Name { get; set; }
 

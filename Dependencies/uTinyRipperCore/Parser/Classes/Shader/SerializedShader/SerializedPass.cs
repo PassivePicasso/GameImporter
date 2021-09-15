@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
 
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedPass : IAssetReadable
+	public struct SerializedPass : IAssetReadable, IYAMLExportable
 	{
 		/// <summary>
 		/// 2019.3 and greater
@@ -36,7 +38,32 @@ namespace uTinyRipper.Classes.Shaders
 			Tags.Read(reader);
 		}
 
-		public void Export(ShaderWriter writer)
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			//TODO: Not sure about these, but saw them in 2020 type tree
+			//m_EditorDataHash
+			//m_Platforms
+			//m_LocalKeywordMask
+			//m_GlobalKeywordMask
+			node.Add("m_NameIndices", m_nameIndices.ExportYAML());
+			node.Add("m_Type", (int)Type);
+			node.Add("m_State", State.ExportYAML(container));
+			node.Add("m_ProgramMask", ProgramMask);
+			node.Add("progVertex", ProgVertex.ExportYAML(container));
+			node.Add("progFragment", ProgFragment.ExportYAML(container));
+			node.Add("progGeometry", ProgGeometry.ExportYAML(container));
+			node.Add("progHull", ProgHull.ExportYAML(container));
+			node.Add("progDomain", ProgDomain.ExportYAML(container));
+			if (HasProgRayTracing(container.Version))
+			{
+				node.Add("progRayTracing", ProgRayTracing.ExportYAML(container));
+			}
+			node.Add("m_Tags", Tags.ExportYAML(container));
+			return node;
+        }
+
+        /*public void Export(ShaderWriter writer)
 		{
 			writer.WriteIndent(2);
 			writer.Write("{0} ", Type.ToString());
@@ -96,9 +123,9 @@ namespace uTinyRipper.Classes.Shaders
 				writer.WriteIndent(2);
 				writer.Write("}\n");
 			}
-		}
+		}*/
 
-		public IReadOnlyDictionary<string, int> NameIndices => m_nameIndices;
+        public IReadOnlyDictionary<string, int> NameIndices => m_nameIndices;
 		public SerializedPassType Type { get; set; }
 		public uint ProgramMask { get; set; }
 		public bool HasInstancingVariant { get; set; }

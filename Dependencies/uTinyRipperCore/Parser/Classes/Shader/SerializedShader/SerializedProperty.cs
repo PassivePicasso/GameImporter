@@ -1,10 +1,12 @@
 using System;
 using System.Globalization;
 using System.IO;
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
 
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedProperty : IAssetReadable
+	public struct SerializedProperty : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -20,7 +22,23 @@ namespace uTinyRipper.Classes.Shaders
 			DefTexture.Read(reader);
 		}
 
-		public void Export(TextWriter writer)
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_Name", Name);
+			node.Add("m_Description", Description);
+			node.Add("m_Attributes", Attributes.ExportYAML());
+			node.Add("m_Type", (int)Type);
+			node.Add("m_Flags", (uint)Flags);
+			node.Add("m_DefValue[0]", DefValue0);
+			node.Add("m_DefValue[1]", DefValue1);
+			node.Add("m_DefValue[2]", DefValue2);
+			node.Add("m_DefValue[3]", DefValue3);
+			node.Add("m_DefTexture", DefTexture.ExportYAML(container));
+			return node;
+        }
+
+        /*public void Export(TextWriter writer)
 		{
 			writer.WriteIndent(2);
 			foreach(string attribute in Attributes)
@@ -134,9 +152,9 @@ namespace uTinyRipper.Classes.Shaders
 					throw new NotSupportedException($"Serialized property type {Type} isn't supported");
 			}
 			writer.Write('\n');
-		}
+		}*/
 
-		public string Name { get; set; }
+        public string Name { get; set; }
 		public string Description { get; set; }
 		public string[] Attributes { get; set; }
 		public SerializedPropertyType Type { get; set; }

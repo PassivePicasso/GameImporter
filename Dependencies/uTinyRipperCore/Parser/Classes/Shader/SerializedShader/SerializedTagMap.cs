@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
 
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedTagMap : IAssetReadable
+	public struct SerializedTagMap : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -12,7 +14,7 @@ namespace uTinyRipper.Classes.Shaders
 			m_tags.Read(reader);
 		}
 
-		public void Export(TextWriter writer, int intent)
+		/*public void Export(TextWriter writer, int intent)
 		{
 			if(Tags.Count != 0)
 			{
@@ -24,9 +26,16 @@ namespace uTinyRipper.Classes.Shaders
 				}
 				writer.Write("}\n");
 			}
-		}
+		}*/
 
-		public IReadOnlyDictionary<string, string> Tags => m_tags;
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("tags", Tags.ExportYAML());
+			return node;
+        }
+
+        public IReadOnlyDictionary<string, string> Tags => m_tags;
 
 		private Dictionary<string, string> m_tags;
 	}
