@@ -1,6 +1,9 @@
-﻿namespace uTinyRipper.Classes.Shaders
+﻿using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
+namespace uTinyRipper.Classes.Shaders
 {
-	public struct TextureParameter : IAssetReadable
+	public struct TextureParameter : IAssetReadable, IYAMLExportable
 	{
 		/// <summary>
 		/// 2017.3 and greater
@@ -37,7 +40,21 @@
 			reader.AlignStream();
 		}
 
-		public string Name { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_NameIndex", NameIndex);
+			node.Add("m_Index", Index);
+			node.Add("m_SamplerIndex", SamplerIndex);
+			if (HasMultiSampled(container.Version))
+			{
+				node.Add("m_MultiSampled", MultiSampled);
+			}
+			node.Add("m_Dim", Dim);
+			return node;
+		}
+
+        public string Name { get; set; }
 		public int NameIndex { get; set; }
 		public int Index { get; set; }
 		public int SamplerIndex { get; set; }

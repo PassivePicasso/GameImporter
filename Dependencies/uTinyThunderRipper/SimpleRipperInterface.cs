@@ -99,6 +99,7 @@ namespace ThunderKit.uTinyRipper
                 var fileCollection = gameStructure.FileCollection;
                 //ShutItAllDown(fileCollection.Exporter);
                 fileCollection.Exporter.OverrideExporter(ClassIDType.MonoScript, new NoScriptExporter());
+                fileCollection.Exporter.OverrideYamlExporter(ClassIDType.Shader);
 
                 Logger.Log(LogType.Info, LogCategory.General, "Loading Class Types export configuration");
                 //foreach (var cls in classes)

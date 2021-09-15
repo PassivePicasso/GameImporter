@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace uTinyRipper.Classes
 {
-	public sealed class Shader : TextAsset
+	public sealed class Shader : NamedObject
 	{
 		public Shader(AssetInfo assetInfo) :
 			base(assetInfo)
@@ -89,29 +89,29 @@ namespace uTinyRipper.Classes
 		{
 			if (IsSerialized(reader.Version))
 			{
-				ReadNamedObject(reader);
+				base.Read(reader);
 
 				ParsedForm.Read(reader);
 				Platforms = reader.ReadArray((t) => (GPUPlatform)t);
 				if (IsDoubleArray(reader.Version))
 				{
-					uint[][] offsets = reader.ReadUInt32ArrayArray();
-					uint[][] compressedLengths = reader.ReadUInt32ArrayArray();
-					uint[][] decompressedLengths = reader.ReadUInt32ArrayArray();
-					byte[] compressedBlob = reader.ReadByteArray();
+					Offsets2D = reader.ReadUInt32ArrayArray();
+					CompressedLengths2D = reader.ReadUInt32ArrayArray();
+					DecompressedLengths2D = reader.ReadUInt32ArrayArray();
+					CompressedBlob = reader.ReadByteArray();
 					reader.AlignStream();
 
-					UnpackSubProgramBlobs(reader.Layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
+					//UnpackSubProgramBlobs(reader.Layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
 				}
 				else
 				{
-					uint[] offsets = reader.ReadUInt32Array();
-					uint[] compressedLengths = reader.ReadUInt32Array();
-					uint[] decompressedLengths = reader.ReadUInt32Array();
-					byte[] compressedBlob = reader.ReadByteArray();
+					Offsets1D = reader.ReadUInt32Array();
+					CompressedLengths1D = reader.ReadUInt32Array();
+					DecompressedLengths1D = reader.ReadUInt32Array();
+					CompressedBlob = reader.ReadByteArray();
 					reader.AlignStream();
 
-					UnpackSubProgramBlobs(reader.Layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
+					//UnpackSubProgramBlobs(reader.Layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
 				}
 			}
 			else
@@ -120,11 +120,11 @@ namespace uTinyRipper.Classes
 
 				if (HasBlob(reader.Version))
 				{
-					uint decompressedSize = reader.ReadUInt32();
-					byte[] compressedBlob = reader.ReadByteArray();
+					DecompressedSize = reader.ReadUInt32();
+					CompressedBlob = reader.ReadByteArray();
 					reader.AlignStream();
 
-					UnpackSubProgramBlobs(reader.Layout, 0, (uint)compressedBlob.Length, decompressedSize, compressedBlob);
+					//UnpackSubProgramBlobs(reader.Layout, 0, (uint)compressedBlob.Length, decompressedSize, compressedBlob);
 				}
 
 				if (HasFallback(reader.Version))
@@ -173,12 +173,12 @@ namespace uTinyRipper.Classes
 #endif
 		}
 
-		public override void ExportBinary(IExportContainer container, Stream stream)
+		/*public override void ExportBinary(IExportContainer container, Stream stream)
 		{
 			ExportBinary(container, stream, DefaultShaderExporterInstantiator);
-		}
+		}*/
 
-		public void ExportBinary(IExportContainer container, Stream stream, Func<Version, GPUPlatform, ShaderTextExporter> exporterInstantiator)
+		/*public void ExportBinary(IExportContainer container, Stream stream, Func<Version, GPUPlatform, ShaderTextExporter> exporterInstantiator)
 		{
 			if (IsSerialized(container.Version))
 			{
@@ -206,7 +206,7 @@ namespace uTinyRipper.Classes
 			{
 				base.ExportBinary(container, stream);
 			}
-		}
+		}*/
 
 		public override IEnumerable<PPtr<Object>> FetchDependencies(DependencyContext context)
 		{
@@ -224,7 +224,7 @@ namespace uTinyRipper.Classes
 			}
 		}
 
-		public static ShaderTextExporter DefaultShaderExporterInstantiator(Version version, GPUPlatform graphicApi)
+		/*public static ShaderTextExporter DefaultShaderExporterInstantiator(Version version, GPUPlatform graphicApi)
 		{
 			switch (graphicApi)
 			{
@@ -243,14 +243,38 @@ namespace uTinyRipper.Classes
 				default:
 					return new ShaderUnknownExporter(graphicApi);
 			}
-		}
+		}*/
 
 		protected override YAMLMappingNode ExportYAMLRoot(IExportContainer container)
 		{
-			throw new NotSupportedException();
+			YAMLMappingNode node = base.ExportYAMLRoot(container);
+			node.InsertSerializedVersion(ToSerializedVersion(container.ExportVersion));
+			node.Add("m_ParsedForm", ParsedForm.ExportYAML(container));
+			node.Add("platforms", Platforms.Cast<int>().ExportYAML(false));
+			if (!IsSerialized(container.Version))
+            {
+				node.Add("decompressedSize", DecompressedSize);
+
+			}
+			else if (IsDoubleArray(container.Version))
+			{
+				node.Add("offsets", Offsets2D.ExportYAML(false));
+				node.Add("compressedLengths", CompressedLengths2D.ExportYAML(false));
+				node.Add("decompressedLengths", DecompressedLengths2D.ExportYAML(false));
+			}
+            else
+			{
+				node.Add("offsets", Offsets1D.ExportYAML(false));
+				node.Add("compressedLengths", CompressedLengths1D.ExportYAML(false));
+				node.Add("decompressedLengths", DecompressedLengths1D.ExportYAML(false));
+			}
+			node.Add("compressedBlob", CompressedBlob.ExportYAML());
+			node.Add("m_Dependencies", Dependencies.ExportYAML(container));
+
+			return node;
 		}
 
-		private void UnpackSubProgramBlobs(AssetLayout layout, uint offset, uint compressedLength, uint decompressedLength, byte[] compressedBlob)
+		/*private void UnpackSubProgramBlobs(AssetLayout layout, uint offset, uint compressedLength, uint decompressedLength, byte[] compressedBlob)
 		{
 			if (compressedBlob.Length == 0)
 			{
@@ -297,14 +321,27 @@ namespace uTinyRipper.Classes
 					Blobs[i].Read(layout, memStream, blobOffsets, blobCompressedLengths, blobDecompressedLengths);
 				}
 			}
-		}
+		}*/
 
-		public override string ExportExtension => "shader";
+		public override string ExportExtension => AssetExtension;
 
 		public override string ValidName => IsSerialized(File.Version) ? ParsedForm.Name : base.ValidName;
 
 		public GPUPlatform[] Platforms { get; set; }
-		public ShaderSubProgramBlob[] Blobs { get; set; }
+
+		//2D arrays starting from 2019.3
+		public uint[][] Offsets2D { get; set; }
+		public uint[][] CompressedLengths2D { get; set; }
+		public uint[][] DecompressedLengths2D { get; set; }
+		//1D arrays before 2019.3
+		public uint[] Offsets1D { get; set; }
+		public uint[] CompressedLengths1D { get; set; }
+		public uint[] DecompressedLengths1D { get; set; }
+		//Not serialized
+		public uint DecompressedSize { get; set; }
+		public byte[] CompressedBlob { get; set; }
+
+		//public ShaderSubProgramBlob[] Blobs { get; set; }
 		public PPtr<Shader>[] Dependencies { get; set; }
 		public Dictionary<string, PPtr<Texture>> NonModifiableTextures { get; set; }
 		public bool ShaderIsBaked { get; set; }

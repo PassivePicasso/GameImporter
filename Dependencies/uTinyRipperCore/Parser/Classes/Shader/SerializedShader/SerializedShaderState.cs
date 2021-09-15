@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.IO;
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
 
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedShaderState : IAssetReadable
+	public struct SerializedShaderState : IAssetReadable, IYAMLExportable
 	{
 		/// <summary>
 		/// 2017.2 and greater
@@ -53,7 +55,7 @@ namespace uTinyRipper.Classes.Shaders
 			reader.AlignStream();
 		}
 
-		public void Export(TextWriter writer)
+		/*public void Export(TextWriter writer)
 		{
 			if (Name != string.Empty)
 			{
@@ -184,9 +186,48 @@ namespace uTinyRipper.Classes.Shaders
 			}
 			writer.WriteIndent(3);
 			writer.Write("GpuProgramID {0}\n", GpuProgramID);
-		}
+		}*/
 
-		public string Name { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_Name", Name);
+			node.Add("rtBlend0", RtBlend0.ExportYAML(container));
+			node.Add("rtBlend1", RtBlend1.ExportYAML(container));
+			node.Add("rtBlend2", RtBlend2.ExportYAML(container));
+			node.Add("rtBlend3", RtBlend3.ExportYAML(container));
+			node.Add("rtBlend4", RtBlend4.ExportYAML(container));
+			node.Add("rtBlend5", RtBlend5.ExportYAML(container));
+			node.Add("rtBlend6", RtBlend6.ExportYAML(container));
+			node.Add("rtBlend7", RtBlend7.ExportYAML(container));
+			node.Add("rtSeparateBlend", RtSeparateBlend);
+			node.Add("zClip", ZClip.ExportYAML(container));
+			node.Add("zTest", ZTest.ExportYAML(container));
+			node.Add("zWrite", ZWrite.ExportYAML(container));
+			node.Add("culling", Culling.ExportYAML(container));
+			//TODO: 2020 or something - node.Add("conservative", Conservative);
+			node.Add("offsetFactor", OffsetFactor.ExportYAML(container));
+			node.Add("offsetUnits", OffsetUnits.ExportYAML(container));
+			node.Add("alphaToMask", AlphaToMask.ExportYAML(container));
+			node.Add("stencilOP", StencilOp.ExportYAML(container));
+			node.Add("stencilOpFront", StencilOpFront.ExportYAML(container));
+			node.Add("stencilOpBack", StencilOpBack.ExportYAML(container));
+			node.Add("stencilReadMask", StencilReadMask.ExportYAML(container));
+			node.Add("stencilWriteMask", StencilWriteMask.ExportYAML(container));
+			node.Add("stencilRef", StencilRef.ExportYAML(container));
+			node.Add("fogStart", FogStart.ExportYAML(container));
+			node.Add("fogEnd", FogEnd.ExportYAML(container));
+			node.Add("fogDensity", FogDensity.ExportYAML(container));
+			node.Add("fogColor", FogColor.ExportYAML(container));
+			node.Add("fogMode", (int)FogMode);
+			node.Add("gpuProgramID", GpuProgramID);
+			node.Add("m_Tags", Tags.ExportYAML(container));
+			node.Add("m_LOD", LOD);
+			node.Add("lighting", Lighting);
+			return node;
+        }
+
+        public string Name { get; set; }
 		public bool RtSeparateBlend { get; set; }
 		public FogMode FogMode { get; set; }
 		public int GpuProgramID { get; set; }

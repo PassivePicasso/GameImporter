@@ -1,6 +1,9 @@
-﻿namespace uTinyRipper.Classes.Shaders
+﻿using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
+namespace uTinyRipper.Classes.Shaders
 {
-	public struct UAVParameter : IAssetReadable
+	public struct UAVParameter : IAssetReadable, IYAMLExportable
 	{
 		public UAVParameter(string name, int index, int originalIndex)
 		{
@@ -17,7 +20,16 @@
 			OriginalIndex = reader.ReadInt32();
 		}
 
-		public string Name { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_NameIndex", NameIndex);
+			node.Add("m_Index", Index);
+			node.Add("m_OriginalIndex", OriginalIndex);
+			return node;
+        }
+
+        public string Name { get; set; }
 		public int NameIndex { get; set; }
 		public int Index { get; set; }
 		public int OriginalIndex { get; set; }

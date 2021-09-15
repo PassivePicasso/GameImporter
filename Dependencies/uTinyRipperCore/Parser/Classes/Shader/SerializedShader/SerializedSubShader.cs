@@ -1,6 +1,9 @@
+using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
 namespace uTinyRipper.Classes.Shaders
 {
-	public struct SerializedSubShader : IAssetReadable
+	public struct SerializedSubShader : IAssetReadable, IYAMLExportable
 	{
 		public void Read(AssetReader reader)
 		{
@@ -9,7 +12,16 @@ namespace uTinyRipper.Classes.Shaders
 			LOD = reader.ReadInt32();
 		}
 
-		public void Export(ShaderWriter writer)
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_Passes", Passes.ExportYAML(container));
+			node.Add("m_Tags", Tags.ExportYAML(container));
+			node.Add("m_LOD", LOD);
+			return node;
+        }
+
+        /*public void Export(ShaderWriter writer)
 		{
 			writer.WriteIndent(1);
 			writer.Write("SubShader {\n");
@@ -25,9 +37,9 @@ namespace uTinyRipper.Classes.Shaders
 			}
 			writer.WriteIndent(1);
 			writer.Write("}\n");
-		}
+		}*/
 
-		public SerializedPass[] Passes { get; set; }
+        public SerializedPass[] Passes { get; set; }
 		public int LOD { get; set; }
 
 		public SerializedTagMap Tags;

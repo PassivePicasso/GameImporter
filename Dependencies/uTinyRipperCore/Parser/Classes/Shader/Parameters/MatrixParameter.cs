@@ -1,6 +1,9 @@
-﻿namespace uTinyRipper.Classes.Shaders
+﻿using uTinyRipper.Converters;
+using uTinyRipper.YAML;
+
+namespace uTinyRipper.Classes.Shaders
 {
-	public struct MatrixParameter : IAssetReadable
+	public struct MatrixParameter : IAssetReadable, IYAMLExportable
 	{
 		public MatrixParameter(string name, ShaderParamType type, int index, int rowCount, int columnCount)
 		{
@@ -30,7 +33,18 @@
 			reader.AlignStream();
 		}
 
-		public string Name { get; set; }
+        public YAMLNode ExportYAML(IExportContainer container)
+        {
+			var node = new YAMLMappingNode();
+			node.Add("m_NameIndex", NameIndex);
+			node.Add("m_Index", Index);
+			node.Add("m_ArraySize", ArraySize);
+			node.Add("m_Type", (byte)Type);
+			node.Add("m_RowCount", RowCount);
+			return node;
+        }
+
+        public string Name { get; set; }
 		public int NameIndex { get; set; }
 		public int Index { get; set; }
 		public int ArraySize { get; set; }
