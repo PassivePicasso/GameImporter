@@ -55,12 +55,12 @@ MonoBehaviour:
   ErrorMessage: 
   StagingPaths:
   - <ManifestStagingRoot>
-  Author: PassivePicasso
+  Author: Twiner
   Name: UnityGameImporter
   Icon: {fileID: 2800000, guid: 94188d6ace86d6443bb4e90bfc4e3e96, type: 3}
   Description: Tool to import unity game assets into a ThunderKit configured project
     for learning purposes
-  Version: 1.0.4
+  Version: 1.1.0
   Dependencies: []
 --- !u!114 &114440870057516422
 MonoBehaviour:
