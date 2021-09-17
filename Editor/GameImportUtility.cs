@@ -17,8 +17,6 @@ namespace PassivePicasso.GameImporter
 {
     public class GameImportUtility : ThunderKitSetting
     {
-        const string TemplatePath = "Packages/thunderkit-unitygameimporter/Editor/UIToolkit/UnityGameImporterSettings.uxml";
-
         private ClassIDType[] AllClassIDTypes = GetAllClassIDTypes();
 
         private static ClassIDType[] GetAllClassIDTypes()
@@ -35,7 +33,15 @@ namespace PassivePicasso.GameImporter
         public override void CreateSettingsUI(VisualElement rootElement)
         {
             var importUtilitySo = new SerializedObject(GetOrCreateSettings<GameImportUtility>());
-            var template = TemplateHelpers.LoadTemplateInstance(TemplatePath);
+
+            var script = MonoScript.FromScriptableObject(this);
+            var scriptPath = AssetDatabase.GetAssetPath(script);
+            var scriptDir = System.IO.Path.GetDirectoryName(scriptPath);
+            var templatesDir = System.IO.Path.Combine(scriptDir, "UIToolkit");
+            var importerSettingsTemplate = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uxml").Replace("\\","/");
+            var importerStyle = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uss");
+            var template = TemplateHelpers.LoadTemplateInstance(importerSettingsTemplate);
+            TemplateHelpers.AddSheet(template, importerStyle);
 
             addAllTypes = template.Q<Button>("add-all-types");
             addAllTypes.clickable.clicked += OnAddAllClicked;

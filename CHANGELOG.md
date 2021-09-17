@@ -1,5 +1,9 @@
 # Markdown File
 
+### 1.1.1
+
+* Fix GameImporterSettings UI failing when package name changes
+
 ### 1.1.0
 
 * Add compiled shader asset export support for fragment and vertex shaders

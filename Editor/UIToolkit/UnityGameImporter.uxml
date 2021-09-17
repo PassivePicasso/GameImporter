@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <Style src="/Packages/thunderkit-unitygameimporter/Editor/UIToolkit/UnityGameImporter.uss" />
+    <Style src="UIToolkit/UnityGameImporter.uss" />
     <ui:VisualElement name="ugi_root" class="importer-root">
 
         <ui:VisualElement class="grow types-field">
