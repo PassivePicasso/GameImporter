@@ -14,6 +14,7 @@ using Version = uTinyRipper.Version;
 using Logger = uTinyRipper.Logger;
 using LogType = uTinyRipper.LogType;
 using UnityEngine;
+using uTinyRipperGUI.Exporters;
 using ILogger = uTinyRipper.ILogger;
 
 namespace ThunderKit.uTinyRipper
@@ -97,13 +98,9 @@ namespace ThunderKit.uTinyRipper
 
                 var gameStructure = GameStructure.Load(new[] { Path.GetDirectoryName(gameDir) });
                 var fileCollection = gameStructure.FileCollection;
-                //ShutItAllDown(fileCollection.Exporter);
-                fileCollection.Exporter.OverrideExporter(ClassIDType.MonoScript, new NoScriptExporter());
-                fileCollection.Exporter.OverrideYamlExporter(ClassIDType.Shader);
-
+                
                 Logger.Log(LogType.Info, LogCategory.General, "Loading Class Types export configuration");
-                //foreach (var cls in classes)
-                //    EnableExport(cls, fileCollection.Exporter);
+                SetUpExporter(fileCollection.Exporter);
 
                 Dictionary<string, Guid> AssemblyHash = new Dictionary<string, Guid>();
                 Dictionary<string, long> ScriptId = new Dictionary<string, long>();
@@ -129,49 +126,19 @@ namespace ThunderKit.uTinyRipper
             }
         }
 
-        private void EnableExport(ClassIDType cls, ProjectExporter exporter)
+        private void SetUpExporter(ProjectExporter exporter)
         {
-            switch (cls)
-            {
-                case ClassIDType.Shader:
-                case ClassIDType.AudioClip:
-                    exporter.OverrideBinaryExporter(cls);
-                    break;
-
-                case ClassIDType.MonoScript:
-                    break;
-
-                case ClassIDType.MonoManager:
-                case ClassIDType.AssetBundle:
-                case ClassIDType.ResourceManager:
-                case ClassIDType.PreloadData:
-                    exporter.OverrideDummyExporter(cls, true, false);
-                    break;
-
-                case ClassIDType.Sprite:
-                    exporter.OverrideDummyExporter(cls, false, true);
-                    break;
-
-                case ClassIDType.BuildSettings:
-                case ClassIDType.EditorSettings:
-                case ClassIDType.TextureImporter:
-                case ClassIDType.DefaultAsset:
-                case ClassIDType.DefaultImporter:
-                case ClassIDType.NativeFormatImporter:
-                case ClassIDType.MonoImporter:
-                case ClassIDType.DDSImporter:
-                case ClassIDType.PVRImporter:
-                case ClassIDType.ASTCImporter:
-                case ClassIDType.KTXImporter:
-                case ClassIDType.IHVImageFormatImporter:
-                case ClassIDType.SpriteAtlas:
-                    exporter.OverrideDummyExporter(cls, false, false);
-                    break;
-
-                default:
-                    exporter.OverrideYamlExporter(cls);
-                    break;
-            }
+            TextureAssetExporter textureExporter = new TextureAssetExporter();
+            exporter.OverrideExporter(ClassIDType.Texture2D, textureExporter);
+            exporter.OverrideExporter(ClassIDType.Cubemap, textureExporter);
+            exporter.OverrideExporter(ClassIDType.Sprite, textureExporter);
+            
+            exporter.OverrideYamlExporter(ClassIDType.Shader);
+            exporter.OverrideExporter(ClassIDType.MonoScript, new NoScriptExporter());
+            exporter.OverrideExporter(ClassIDType.AudioClip, new AudioAssetExporter());
+            exporter.OverrideExporter(ClassIDType.TextAsset, new TextAssetExporter());
+            exporter.OverrideExporter(ClassIDType.Font, new FontAssetExporter());
+            exporter.OverrideExporter(ClassIDType.MovieTexture, new MovieTextureAssetExporter());
         }
 
         private static void PrepareExportDirectory(string path)
