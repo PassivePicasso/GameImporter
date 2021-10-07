@@ -16,14 +16,14 @@ namespace PassivePicasso.GameImporter
             EditorUtility.ClearProgressBar();
         }
 
-        public void Log(LogType type, LogCategory category, string message)
+        public void Log(LogType type, LogCategory category, string message, float progress = 0)
         {
             switch (type)
             {
                 case LogType.Error:
                     throw new Exception(message);
                 default:
-                    EditorUtility.DisplayProgressBar("Analyzing Game", message, 0);
+                    EditorUtility.DisplayProgressBar("Analyzing Game", message, progress);
                     break;
             }
         }
