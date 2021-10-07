@@ -23,7 +23,7 @@ namespace uTinyRipperGUI.Exporters
 		[DllImport("crunch", CallingConvention = CallingConvention.Cdecl)]
 		private static extern bool DecompressCRN(byte[] pSrcFileData, int srcFileSize, out IntPtr uncompressedData, out int uncompressedSize);
 
-		[DllImport("crunchunity.dll", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("crunchunity", CallingConvention = CallingConvention.Cdecl)]
 		private static extern bool DecompressUnityCRN(byte[] pSrc_file_data, int src_file_size, out IntPtr uncompressedData, out int uncompressedSize);
 
 		private static bool IsUseUnityCrunch(Version version, TextureFormat format)
@@ -62,7 +62,6 @@ namespace uTinyRipperGUI.Exporters
 						throw new Exception(texture.TextureFormat.ToString());
 
 				}
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch
@@ -146,7 +145,6 @@ namespace uTinyRipperGUI.Exporters
 						throw new Exception(texture.TextureFormat.ToString());
 
 				}
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch
@@ -202,7 +200,6 @@ namespace uTinyRipperGUI.Exporters
 						throw new Exception(texture.TextureFormat.ToString());
 
 				}
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch
@@ -239,7 +236,6 @@ namespace uTinyRipperGUI.Exporters
 						throw new Exception(texture.TextureFormat.ToString());
 
 				}
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch
@@ -275,7 +271,6 @@ namespace uTinyRipperGUI.Exporters
 			try
 			{
 				PvrtcDecoder.DecompressPVRTC(data, width, height, bitmap.Bits, bitCount == 2);
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch
@@ -294,7 +289,6 @@ namespace uTinyRipperGUI.Exporters
 			try
 			{
 				AstcDecoder.DecodeASTC(data, width, height, blockSize, blockSize, bitmap.Bits);
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch
@@ -311,7 +305,6 @@ namespace uTinyRipperGUI.Exporters
 			try
 			{
 				texgenpackdecode((int)ToTexgenpackTexturetype(texture.TextureFormat), data, texture.Width, texture.Height, bitmap.BitsPtr, fixAlpha);
-				bitmap.FlipY();
 				return bitmap;
 			}
 			catch

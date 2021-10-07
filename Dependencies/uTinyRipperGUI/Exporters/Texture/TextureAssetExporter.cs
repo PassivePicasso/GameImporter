@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using uTinyRipper;
 using uTinyRipper.Classes;
@@ -37,7 +36,7 @@ namespace uTinyRipperGUI.Exporters
 						TextureConverter.UnpackNormal(bitmap.BitsPtr, bitmap.Bits.Length);
 					}
 
-					bitmap.Save(exportStream, ImageFormat.Png);
+					bitmap.Save(exportStream);
 					return true;
 				}
 			}

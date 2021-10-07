@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using UnityEditor;
 using uTinyRipper;
-using uTinyRipper.Classes;
 using uTinyRipper.Converters;
 using Version = uTinyRipper.Version;
 using Logger = uTinyRipper.Logger;
@@ -84,12 +84,11 @@ namespace ThunderKit.uTinyRipper
             Console.ReadKey();
         }
 
-        NoExporter noExporter = new NoExporter();
-
         public void Load(string gameDir, IEnumerable<ClassIDType> classes, Platform platform, TransferInstructionFlags transferInstructionFlags, ILogger logger = null)
         {
             try
             {
+                AssetDatabase.StartAssetEditing();
                 Logger.Instance = logger;
                 var filename = Path.GetFileName(gameDir);
                 var playerInfo = FileVersionInfo.GetVersionInfo(gameDir);
@@ -98,7 +97,7 @@ namespace ThunderKit.uTinyRipper
 
                 var gameStructure = GameStructure.Load(new[] { Path.GetDirectoryName(gameDir) });
                 var fileCollection = gameStructure.FileCollection;
-                
+
                 Logger.Log(LogType.Info, LogCategory.General, "Loading Class Types export configuration");
                 SetUpExporter(fileCollection.Exporter);
 
@@ -124,11 +123,16 @@ namespace ThunderKit.uTinyRipper
             {
                 Logger.Log(LogType.Error, LogCategory.General, ex.ToString());
             }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+            }
         }
 
         private void SetUpExporter(ProjectExporter exporter)
         {
             TextureAssetExporter textureExporter = new TextureAssetExporter();
+            
             exporter.OverrideExporter(ClassIDType.Texture2D, textureExporter);
             exporter.OverrideExporter(ClassIDType.Cubemap, textureExporter);
             exporter.OverrideExporter(ClassIDType.Sprite, textureExporter);
@@ -149,14 +153,5 @@ namespace ThunderKit.uTinyRipper
                 //DirectoryUtils.Delete(path, true);
             }
         }
-
-        private void ShutItAllDown(ProjectExporter exporter)
-        {
-            foreach (ClassIDType cls in Enum.GetValues(typeof(ClassIDType)).OfType<ClassIDType>())
-                if (cls == ClassIDType.MonoScript) continue;
-                else
-                    exporter.OverrideExporter(cls, noExporter);
-        }
-
     }
 }
