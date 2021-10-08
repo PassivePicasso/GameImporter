@@ -1,17 +1,16 @@
 {
-    "name": "uTinyThunderRipper",
+    "name": "uTinyRipperGUI",
     "references": [
-        "uTinyRipperCore",
-        "uTinyRipperGUI"
+        "uTinyRipperCore"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": true,
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": false,
+    "autoReferenced": true,
     "defineConstraints": []
 }

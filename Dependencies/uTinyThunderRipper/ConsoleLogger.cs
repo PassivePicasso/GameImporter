@@ -21,7 +21,7 @@ namespace ThunderKit.uTinyRipper
 			}
 		}
 
-		public void Log(LogType type, LogCategory category, string message)
+		public void Log(LogType type, LogCategory category, string message, float progress = 0)
 		{
 #if !DEBUG
 			if(category == LogCategory.Debug)
