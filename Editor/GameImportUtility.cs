@@ -5,6 +5,7 @@ using ThunderKit.uTinyRipper;
 using UnityEditor;
 using uTinyRipper;
 using ThunderKit.Core.UIElements;
+using System.Collections.Generic;
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
@@ -17,17 +18,17 @@ namespace PassivePicasso.GameImporter
 {
     public class GameImportUtility : ThunderKitSetting
     {
-        private ClassIDType[] AllClassIDTypes = GetAllClassIDTypes();
 
         private static ClassIDType[] GetAllClassIDTypes()
         {
             return (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
         }
 
-        public ClassIDType[] ClassIDTypes = (Enum.GetValues(typeof(ClassIDType)) as ClassIDType[]).OrderBy(c => $"{c}").ToArray();
+        public List<ClassIDType> UnassignedClassIdTypes = new List<ClassIDType>(GetAllClassIDTypes());
+        public List<ClassIDType> AssignedClassIdTypes = new List<ClassIDType>(GetAllClassIDTypes());
 
-        private ListView typeList;
-        private ListView addTypeList;
+        private ListView assignedTypes;
+        private ListView unassignedTypes;
         private Button addAllTypes, removeAllTypes;
         private string searchValue;
         public override void CreateSettingsUI(VisualElement rootElement)
@@ -38,7 +39,7 @@ namespace PassivePicasso.GameImporter
             var scriptPath = AssetDatabase.GetAssetPath(script);
             var scriptDir = System.IO.Path.GetDirectoryName(scriptPath);
             var templatesDir = System.IO.Path.Combine(scriptDir, "UIToolkit");
-            var importerSettingsTemplate = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uxml").Replace("\\","/");
+            var importerSettingsTemplate = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uxml").Replace("\\", "/");
             var importerStyle = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uss");
             var template = TemplateHelpers.LoadTemplateInstance(importerSettingsTemplate);
             TemplateHelpers.AddSheet(template, importerStyle);
@@ -49,19 +50,29 @@ namespace PassivePicasso.GameImporter
             removeAllTypes = template.Q<Button>("remove-all-types");
             removeAllTypes.clickable.clicked += OnRemoveAllClicked;
 
-            typeList = template.Q<ListView>("type-list");
-            typeList.onItemChosen += OnRemoveItem;
-            typeList.bindItem = BindTypesItem;
-            typeList.makeItem = MakeTypesItem;
-            typeList.itemsSource = ClassIDTypes;
+            assignedTypes = template.Q<ListView>("type-list");
+#if UNITY_2022_1_OR_NEWER
+            assignedTypes.onItemsChosen += OnRemoveItem;
+#else
+            assignedTypes.onItemChosen += OnRemoveItem;
+#endif
+            assignedTypes.bindItem = BindTypesItem;
+            assignedTypes.makeItem = MakeTypesItem;
+            assignedTypes.itemsSource = AssignedClassIdTypes;
 
-            addTypeList = template.Q<ListView>("add-type-list");
-            addTypeList.onItemChosen += OnAddItem;
-            addTypeList.bindItem = BindAllTypesItem;
-            addTypeList.makeItem = MakeTypesItem;
-            addTypeList.selectionType = SelectionType.Multiple;
+            unassignedTypes = template.Q<ListView>("add-type-list");
+#if UNITY_2022_1_OR_NEWER
+            assignedTypes.onItemsChosen += OnAddItem;
+#else
+            assignedTypes.onItemChosen += OnAddItem;
+#endif
+            unassignedTypes.bindItem = BindAllTypesItem;
+            unassignedTypes.makeItem = MakeTypesItem;
+            unassignedTypes.selectionType = SelectionType.Multiple;
 
-            UpdateAllClassIDTypes();
+            UnassignedClassIdTypes.Clear();
+            UnassignedClassIdTypes.AddRange(GetAllClassIDTypes().Where(cid => !AssignedClassIdTypes.Contains(cid)));
+            unassignedTypes.itemsSource = UnassignedClassIdTypes;
 
             rootElement.Add(template);
             rootElement.Bind(importUtilitySo);
@@ -69,58 +80,85 @@ namespace PassivePicasso.GameImporter
 
         private void OnRemoveAllClicked()
         {
-            ClassIDTypes = Array.Empty<ClassIDType>();
-            AllClassIDTypes = GetAllClassIDTypes();
-            typeList.itemsSource = ClassIDTypes;
-            addTypeList.itemsSource = AllClassIDTypes;
+            AssignedClassIdTypes.Clear();
+            UnassignedClassIdTypes.Clear();
+            UnassignedClassIdTypes.AddRange(GetAllClassIDTypes());
+            RefreshItems();
         }
+        void RefreshItems()
+        {
 
+#if UNITY_2022_1_OR_NEWER
+            assignedTypes.RefreshItems();
+            unassignedTypes.RefreshItems();
+#else
+            assignedTypes.Refresh();
+            unassignedTypes.Refresh();
+#endif
+        }
         private void OnAddAllClicked()
         {
-            ClassIDTypes = GetAllClassIDTypes();
-            typeList.itemsSource = ClassIDTypes;
-            UpdateAllClassIDTypes();
+            UnassignedClassIdTypes.Clear();
+            AssignedClassIdTypes.Clear();
+            AssignedClassIdTypes.AddRange(GetAllClassIDTypes());
+
+            RefreshItems();
         }
 
         private void UpdateClassIDTypes(object obj, bool remove)
         {
-            var enumer = remove ? ClassIDTypes.Where(cid => !cid.Equals((ClassIDType)obj)) : ClassIDTypes.Append((ClassIDType)obj);
-            ClassIDTypes = enumer.OrderBy(cid => $"{cid}").ToArray();
-
-            typeList.itemsSource = ClassIDTypes;
-            UpdateAllClassIDTypes();
+            var cid = (ClassIDType)obj;
+            if (remove)
+            {
+                AssignedClassIdTypes.Remove(cid);
+                UnassignedClassIdTypes.Add(cid);
+            }
+            else
+            {
+                AssignedClassIdTypes.Add(cid);
+                UnassignedClassIdTypes.Remove(cid);
+            }
+            RefreshItems();
         }
 
-        private void UpdateAllClassIDTypes()
+
+#if UNITY_2022_1_OR_NEWER
+        private void OnRemoveItem(IEnumerable<object> classObjects)
+#else
+        private void OnRemoveItem(object idType)
+#endif
         {
-            var acidt = Enum.GetValues(typeof(ClassIDType))
-                                      .OfType<ClassIDType>()
-                                      .Where(cid => !ClassIDTypes.Contains(cid));
-
-            if (!string.IsNullOrWhiteSpace(searchValue))
-                acidt = acidt.Where(c => $"{c}".IndexOf(searchValue, StringComparison.OrdinalIgnoreCase) > -1);
-
-            AllClassIDTypes = acidt.OrderBy(c => $"{c}").ToArray();
-
-            addTypeList.itemsSource = AllClassIDTypes;
+#if UNITY_2022_1_OR_NEWER
+            foreach (var idType in classObjects.OfType<ClassIDType>().ToArray())
+#endif
+                UpdateClassIDTypes(idType, true);
         }
 
-        private void OnRemoveItem(object obj) => UpdateClassIDTypes(obj, true);
-        private void OnAddItem(object obj) => UpdateClassIDTypes(obj, false);
+#if UNITY_2022_1_OR_NEWER
+        private void OnAddItem(IEnumerable<object> classObjects)
+#else
+        private void OnAddItem(object idType)
+#endif
+        {
+#if UNITY_2022_1_OR_NEWER
+            foreach (var idType in classObjects.OfType<ClassIDType>().ToArray())
+#endif
+                UpdateClassIDTypes(idType, false);
+        }
 
         private VisualElement MakeTypesItem() => new Label();
         private void BindTypesItem(VisualElement element, int index)
         {
             if (!(element is Label label)) return;
 
-            label.text = $"{ClassIDTypes[index]}";
+            label.text = $"{AssignedClassIdTypes[index]}";
         }
 
         private void BindAllTypesItem(VisualElement element, int index)
         {
             if (!(element is Label label)) return;
 
-            label.text = $"{AllClassIDTypes[index]}";
+            label.text = $"{UnassignedClassIdTypes[index]}";
         }
 
         [InitializeOnLoadMethod]
@@ -136,7 +174,7 @@ namespace PassivePicasso.GameImporter
             var tkSettings = GetOrCreateSettings<ThunderKitSettings>();
             var importUtility = GetOrCreateSettings<GameImportUtility>();
             using (var progressBarLogger = new ProgressBarLogger())
-                ripper.Load(System.IO.Path.Combine(tkSettings.GamePath, tkSettings.GameExecutable), importUtility.ClassIDTypes, Platform.StandaloneWin64Player, TransferInstructionFlags.AllowTextSerialization, progressBarLogger);
+                ripper.Load(System.IO.Path.Combine(tkSettings.GamePath, tkSettings.GameExecutable), importUtility.AssignedClassIdTypes, Platform.StandaloneWin64Player, TransferInstructionFlags.AllowTextSerialization, progressBarLogger);
 
             AssetDatabase.Refresh();
         }
