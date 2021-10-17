@@ -50,13 +50,21 @@ namespace PassivePicasso.GameImporter
             removeAllTypes.clickable.clicked += OnRemoveAllClicked;
 
             typeList = template.Q<ListView>("type-list");
+#if UNITY_2020_1_OR_NEWER
+            typeList.onItemsChosen += OnRemoveItem;
+#elif UNITY_2018_1_OR_NEWER
             typeList.onItemChosen += OnRemoveItem;
+#endif
             typeList.bindItem = BindTypesItem;
             typeList.makeItem = MakeTypesItem;
             typeList.itemsSource = ClassIDTypes;
 
             addTypeList = template.Q<ListView>("add-type-list");
-            addTypeList.onItemChosen += OnAddItem;
+#if UNITY_2020_1_OR_NEWER
+            typeList.onItemsChosen += OnAddItem;
+#elif UNITY_2018_1_OR_NEWER
+            typeList.onItemChosen += OnAddItem;
+#endif
             addTypeList.bindItem = BindAllTypesItem;
             addTypeList.makeItem = MakeTypesItem;
             addTypeList.selectionType = SelectionType.Multiple;
@@ -105,8 +113,17 @@ namespace PassivePicasso.GameImporter
             addTypeList.itemsSource = AllClassIDTypes;
         }
 
+#if UNITY_2020_1_OR_NEWER
+        private void OnRemoveItem(IEnumerable<object> objs) => UpdateClassIDTypes(objs.First(), true);
+#else
         private void OnRemoveItem(object obj) => UpdateClassIDTypes(obj, true);
+#endif
+
+#if UNITY_2020_1_OR_NEWER
+        private void OnAddItem(IEnumerable<object> objs) => UpdateClassIDTypes(objs.First(), false);
+#else
         private void OnAddItem(object obj) => UpdateClassIDTypes(obj, false);
+#endif
 
         private VisualElement MakeTypesItem() => new Label();
         private void BindTypesItem(VisualElement element, int index)
