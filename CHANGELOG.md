@@ -1,5 +1,9 @@
 # Markdown File
 
+### 1.1.15
+
+* Fix minor compatibility issue with Unity 2021.1+
+
 ### 1.1.1
 
 * Fix GameImporterSettings UI failing when package name changes
