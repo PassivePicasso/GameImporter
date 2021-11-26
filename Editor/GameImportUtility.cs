@@ -6,6 +6,7 @@ using UnityEditor;
 using uTinyRipper;
 using ThunderKit.Core.UIElements;
 #if UNITY_2019_1_OR_NEWER
+using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 #else
@@ -38,7 +39,7 @@ namespace PassivePicasso.GameImporter
             var scriptPath = AssetDatabase.GetAssetPath(script);
             var scriptDir = System.IO.Path.GetDirectoryName(scriptPath);
             var templatesDir = System.IO.Path.Combine(scriptDir, "UIToolkit");
-            var importerSettingsTemplate = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uxml").Replace("\\","/");
+            var importerSettingsTemplate = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uxml").Replace("\\", "/");
             var importerStyle = System.IO.Path.Combine(templatesDir, "UnityGameImporter.uss");
             var template = TemplateHelpers.LoadTemplateInstance(importerSettingsTemplate);
             TemplateHelpers.AddSheet(template, importerStyle);
