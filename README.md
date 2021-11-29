@@ -5,7 +5,8 @@ This tool utilizes a modified version of [uTinyRipper](https://github.com/mafaca
 This allows you to easily setup a project for learning about the tools you're working with when making mods for games with modding support.
 
 to install this package you can add it using the ThunderKit package manager by adding a package source for https://thunderkit.thunderstore.io 
-*** Installing the latest release from Thunderstore using the ThunderKit Package Manager is the recommended way to install this tool**
+
+**Installing the latest release from Thunderstore using the ThunderKit Package Manager is the recommended way to install this tool**
 
 Alternatively you can install directly from the Github repository by adding the following to your ProjectRoot/Packages/manifest.json
 
