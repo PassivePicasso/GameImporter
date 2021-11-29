@@ -8,7 +8,7 @@ to install this package you can add it using the ThunderKit package manager by a
 
 Alternatively you can install directly from the Github repository by adding the following to your ProjectRoot/Packages/manifest.json
 
-``` "thunderkit-unitygameimporter":"https://github.com/PassivePicasso/GameImporter.git", ```
+``` "twiner-unitygameimporter":"https://github.com/PassivePicasso/GameImporter.git", ```
 
 you will see a large number of warnings when installing this project, I'll likely be simply removing most of the TODO items for the purposes of this project.
 
